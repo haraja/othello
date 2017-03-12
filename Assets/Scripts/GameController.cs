@@ -206,9 +206,13 @@ public class GameController : MonoBehaviour {
 	}
 
 
+	// TODO
+	// this is not working yet
 	void FlipChips()
 	{
 		List<GameObject>.Enumerator e = chipsToTurn.GetEnumerator (); 
+
+		int count = chipsToTurn.Count; // just to see on debugger
 
 		while (e.MoveNext ()) {
 			GameObject oldChip = e.Current;
@@ -227,7 +231,7 @@ public class GameController : MonoBehaviour {
 
 			Destroy (e.Current);
 
-			if (playerColor == chipColor.WHITE)
+			if (oldColor == chipColor.WHITE)
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			else
 				gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
