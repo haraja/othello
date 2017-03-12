@@ -116,15 +116,38 @@ public class GameController : MonoBehaviour {
 		if (gameBoard [squareX, squareY] != null)
 			return false;
 
-		if (CheckDirection (squareX, squareY, -1, -1, color) ||
-			CheckDirection (squareX, squareY, -1,  0, color) ||
-			CheckDirection (squareX, squareY, -1,  1, color) ||
-			CheckDirection (squareX, squareY,  0,  1, color) ||
-			CheckDirection (squareX, squareY,  1,  1, color) ||
-			CheckDirection (squareX, squareY,  1,  0, color) ||
-			CheckDirection (squareX, squareY,  1, -1, color) ||
-			CheckDirection (squareX, squareY,  0, -1, color))
+		if (CheckDirection (squareX, squareY, -1, -1, color)) {
 			isValid = true;
+			FlipChips ();
+		}
+		if (CheckDirection (squareX, squareY, -1,  0, color)) {
+			isValid = true;
+			FlipChips ();
+		}
+		if (CheckDirection (squareX, squareY, -1,  1, color)) {
+			isValid = true;
+			FlipChips ();
+		}
+		if (CheckDirection (squareX, squareY,  0,  1, color)) {
+			isValid = true;
+			FlipChips ();
+		}
+		if (CheckDirection (squareX, squareY,  1,  1, color)) {
+			isValid = true;
+			FlipChips ();
+		}
+		if (CheckDirection (squareX, squareY,  1,  0, color)) {
+			isValid = true;
+			FlipChips ();
+		}
+		if (CheckDirection (squareX, squareY,  1, -1, color)) {
+			isValid = true;
+			FlipChips ();
+		}
+		if (CheckDirection (squareX, squareY,  0, -1, color)) {
+			isValid = true;
+			FlipChips ();
+		}
 
 		return isValid;
 
@@ -155,8 +178,10 @@ public class GameController : MonoBehaviour {
 			else {
 				count++;
 				chipsToTurn.Add (gameBoard[checkX, checkY]);
-				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false)
+				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false) {
+					chipsToTurn.Clear ();	
 					return false;
+				}
 			}
 		} else {
 			if (gameBoard [checkX, checkY] == null)
@@ -164,8 +189,10 @@ public class GameController : MonoBehaviour {
 			else if (SquareColor (checkX, checkY) != color) {
 				count++;
 				chipsToTurn.Add (gameBoard[checkX, checkY]);
-				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false)
+				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false) {
+					chipsToTurn.Clear ();
 					return false;
+				}
 			} else if (SquareColor (checkX, checkY) == color)
 				return true;
 			else {
@@ -188,6 +215,7 @@ public class GameController : MonoBehaviour {
 			return chipColor.BLACK;
 	}
 
+
 	public void PointerDown(float coordX, float coordY)
 	{
 		Vector2 square = GetSquareFromCoord (coordX, coordY);
@@ -199,15 +227,21 @@ public class GameController : MonoBehaviour {
 				gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			else
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-
 			FlipChips ();
+			ChangeTurn ();
+		
 		} else
 			chipsToTurn.Clear ();
 	}
 
+	void ChangeTurn ()
+	{
+		if (playerColor == chipColor.WHITE)
+			playerColor = chipColor.BLACK;
+		else
+			playerColor = chipColor.WHITE;
+	}
 
-	// TODO
-	// this is not working yet
 	void FlipChips()
 	{
 		List<GameObject>.Enumerator e = chipsToTurn.GetEnumerator (); 
@@ -221,9 +255,6 @@ public class GameController : MonoBehaviour {
 				oldColor = chipColor.WHITE;
 			else
 				oldColor = chipColor.BLACK;
-
-			//Vector3 chipCoord = Camera.main.WorldToScreenPoint(oldChip.transform.position)
-
 
 			Vector2 square = GetSquareFromTransform (oldChip.transform.position);
 			int squareX = (int)square.x;
