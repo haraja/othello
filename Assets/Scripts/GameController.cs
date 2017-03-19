@@ -1,22 +1,39 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
+
+
+public enum ChipColor {WHITE, BLACK};
+public enum CompStrategy {RANDOM};
 
 
 public class GameController : MonoBehaviour {
 
-	enum chipColor {WHITE, BLACK};
+	public Text countWhiteText;
+	public Text countBlackText;
+	int countWhite;
+	int countBlack; 
 
+	public enum Player {HUMAN, COMPUTER};
 	public GameObject gameboardImage;
 	public GameObject chipBlack;
 	public GameObject chipWhite;
+	//public ChipColor player1Color = ChipColor.WHITE; 		// initially player1 is hardcoded to play with white
+	public Player opponent = Player.HUMAN;
+	ChipColor currentPlayer = ChipColor.WHITE;				// white always starts
+
+	CompPlayer compPlayer;
 
 	GameObject[,] gameBoard = new GameObject[8, 8];
-	List<GameObject> chipsToTurn = new List<GameObject>();	// used to store chips, whicih potentially will be turned
-	chipColor playerColor = chipColor.WHITE; 				// initially player is hardcoded to play with white
+	List<GameObject> chipsToFlip = new List<GameObject>();	// used to store chips, which potentially will be turned
+	public CompStrategy compStrategy = CompStrategy.RANDOM;
+
 
 	void Start () {
 		InitBoard ();
+		UpdateUI ();
 	}
 
 
@@ -27,48 +44,22 @@ public class GameController : MonoBehaviour {
 				gameBoard[i, j] = null;
 			}
 		}
-
-/*		
-		gameBoard [0, 0] = Instantiate (chipWhite,  GetCoordFromSquare(0, 0), Quaternion.identity) as GameObject;
-		gameBoard [1, 1] = Instantiate (chipWhite,  GetCoordFromSquare(1, 1), Quaternion.identity) as GameObject;
-		gameBoard [2, 2] = Instantiate (chipWhite,  GetCoordFromSquare(2, 2), Quaternion.identity) as GameObject;
-		gameBoard [3, 3] = Instantiate (chipWhite,  GetCoordFromSquare(3, 3), Quaternion.identity) as GameObject;
-		gameBoard [4, 4] = Instantiate (chipWhite,  GetCoordFromSquare(4, 4), Quaternion.identity) as GameObject;
-		gameBoard [5, 5] = Instantiate (chipWhite,  GetCoordFromSquare(5, 5), Quaternion.identity) as GameObject;
-		gameBoard [6, 6] = Instantiate (chipWhite,  GetCoordFromSquare(6, 6), Quaternion.identity) as GameObject;
-		gameBoard [7, 7] = Instantiate (chipWhite,  GetCoordFromSquare(7, 7), Quaternion.identity) as GameObject;
-*/
-
-/*
-		gameBoard [0, 2] = Instantiate (chipWhite,  GetCoordFromSquare(0, 2), Quaternion.identity) as GameObject;
-		gameBoard [1, 2] = Instantiate (chipWhite,  GetCoordFromSquare(1, 2), Quaternion.identity) as GameObject;
-		gameBoard [2, 2] = Instantiate (chipWhite,  GetCoordFromSquare(2, 2), Quaternion.identity) as GameObject;
-		gameBoard [3, 2] = Instantiate (chipWhite,  GetCoordFromSquare(3, 2), Quaternion.identity) as GameObject;
-		gameBoard [4, 2] = Instantiate (chipWhite,  GetCoordFromSquare(4, 2), Quaternion.identity) as GameObject;
-		gameBoard [5, 2] = Instantiate (chipWhite,  GetCoordFromSquare(5, 2), Quaternion.identity) as GameObject;
-
-		gameBoard [2, 1] = Instantiate (chipBlack,  GetCoordFromSquare(2, 1), Quaternion.identity) as GameObject;
-		gameBoard [3, 1] = Instantiate (chipBlack,  GetCoordFromSquare(3, 1), Quaternion.identity) as GameObject;
-		gameBoard [4, 1] = Instantiate (chipBlack,  GetCoordFromSquare(4, 1), Quaternion.identity) as GameObject;
-		gameBoard [3, 3] = Instantiate (chipBlack,  GetCoordFromSquare(3, 3), Quaternion.identity) as GameObject;
-		gameBoard [4, 3] = Instantiate (chipBlack,  GetCoordFromSquare(4, 3), Quaternion.identity) as GameObject;
-
-		gameBoard [0, 5] = Instantiate (chipBlack,  GetCoordFromSquare(0, 5), Quaternion.identity) as GameObject;
-		gameBoard [1, 5] = Instantiate (chipBlack,  GetCoordFromSquare(1, 5), Quaternion.identity) as GameObject;
-		gameBoard [2, 5] = Instantiate (chipBlack,  GetCoordFromSquare(2, 5), Quaternion.identity) as GameObject;
-		gameBoard [3, 5] = Instantiate (chipBlack,  GetCoordFromSquare(3, 5), Quaternion.identity) as GameObject;
-		gameBoard [5, 5] = Instantiate (chipBlack,  GetCoordFromSquare(5, 5), Quaternion.identity) as GameObject;
-*/
+			
 		gameBoard [3, 3] = Instantiate (chipWhite,  GetCoordFromSquare(3, 3), Quaternion.identity) as GameObject;
 		gameBoard [4, 4] = Instantiate (chipWhite,  GetCoordFromSquare(4, 4), Quaternion.identity) as GameObject;
 		gameBoard [3, 4] = Instantiate (chipBlack,  GetCoordFromSquare(3, 4), Quaternion.identity) as GameObject;
 		gameBoard [4, 3] = Instantiate (chipBlack,  GetCoordFromSquare(4, 3), Quaternion.identity) as GameObject;
 
+		countWhite = 2;
+		countBlack = 2;
+}
 
-		//gameBoard [3, 3] = Instantiate (chipWhite, new Vector3(-0.63f, 0.0f, 0.63f) , Quaternion.identity) as GameObject;
-		//gameBoard [4, 4] = Instantiate (chipWhite, new Vector3(1,0,1), Quaternion.identity) as GameObject;
-		//gameBoard [3, 4] = Instantiate (chipBlack, new Vector3(1,0,-1), Quaternion.identity) as GameObject;
-		//gameBoard [4, 3] = Instantiate (chipBlack, new Vector3(-1,0,-1), Quaternion.identity) as GameObject;
+
+	void UpdateUI ()
+	{
+		countWhiteText.text = "White: " + countWhite.ToString ();
+		countBlackText.text = "Black: " + countBlack.ToString ();
+
 	}
 
 
@@ -109,7 +100,7 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	bool IsValidMove (int squareX, int squareY, chipColor color)
+	public bool IsValidMove (int squareX, int squareY, ChipColor color)
 	{
 		bool isValid = false;
 
@@ -149,22 +140,19 @@ public class GameController : MonoBehaviour {
 			FlipChips ();
 		}
 
-		return isValid;
-
-		/*
-		while (checkX < 2) {
-			if (CheckDirection (checkX, checkY, color))
-				isValid = true;
-			if (checkX == checkY)
-				checkX++;
+		if (isValid) {
+			if (currentPlayer == ChipColor.WHITE)
+				countWhite++;
 			else
-				checkY++;
+				countBlack++;
 		}
-		*/
+
+		UpdateUI ();
+		return isValid;
 	}
 
 
-	bool CheckDirection (int squareX, int squareY, int deltaX, int deltaY, chipColor color, int count = 0)
+	bool CheckDirection (int squareX, int squareY, int deltaX, int deltaY, ChipColor color, int count = 0)
 	{
 		int checkX = squareX + deltaX;
 		int checkY = squareY + deltaY;
@@ -177,9 +165,9 @@ public class GameController : MonoBehaviour {
 				return false;
 			else {
 				count++;
-				chipsToTurn.Add (gameBoard[checkX, checkY]);
+				chipsToFlip.Add (gameBoard[checkX, checkY]);
 				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false) {
-					chipsToTurn.Clear ();	
+					chipsToFlip.Clear ();	
 					return false;
 				}
 			}
@@ -188,9 +176,9 @@ public class GameController : MonoBehaviour {
 				return false;
 			else if (SquareColor (checkX, checkY) != color) {
 				count++;
-				chipsToTurn.Add (gameBoard[checkX, checkY]);
+				chipsToFlip.Add (gameBoard[checkX, checkY]);
 				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false) {
-					chipsToTurn.Clear ();
+					chipsToFlip.Clear ();
 					return false;
 				}
 			} else if (SquareColor (checkX, checkY) == color)
@@ -205,25 +193,28 @@ public class GameController : MonoBehaviour {
 
 
 	// This function expects, that there is chip on checked square!!!
-	chipColor SquareColor(int squareX, int squareY)
+	ChipColor SquareColor(int squareX, int squareY)
 	{
 		Debug.Assert (gameBoard[squareX, squareY] != null, "ERROR::SquareColor: Called with null square");
 
 		if (gameBoard[squareX, squareY].tag == "ChipWhite")
-			return chipColor.WHITE;
+			return ChipColor.WHITE;
 		else
-			return chipColor.BLACK;
+			return ChipColor.BLACK;
 	}
 
 
 	public void PointerDown(float coordX, float coordY)
 	{
+		if (currentPlayer == ChipColor.BLACK && opponent != Player.HUMAN)
+			return;
+
 		Vector2 square = GetSquareFromCoord (coordX, coordY);
 		int squareX = (int)square.x;
 		int squareY = (int)square.y;
 
-		if (IsValidMove (squareX, squareY, playerColor)) {
-			if (playerColor == chipColor.WHITE)
+		if (IsValidMove (squareX, squareY, currentPlayer)) {
+			if (currentPlayer == ChipColor.WHITE)
 				gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			else
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
@@ -231,43 +222,62 @@ public class GameController : MonoBehaviour {
 			ChangeTurn ();
 		
 		} else
-			chipsToTurn.Clear ();
+			chipsToFlip.Clear ();
 	}
+
 
 	void ChangeTurn ()
 	{
-		if (playerColor == chipColor.WHITE)
-			playerColor = chipColor.BLACK;
+		if (currentPlayer == ChipColor.WHITE) {
+			currentPlayer = ChipColor.BLACK;
+			if (opponent == Player.COMPUTER)
+			{
+				//Vector2 proposedMove = new Vector2 ();
+				Vector2 proposedMove = compPlayer.ProposeMove (gameBoard, compStrategy);
+				int squareX = (int)proposedMove.x;
+				int squareY = (int)proposedMove.y;
+				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
+			}
+		}
 		else
-			playerColor = chipColor.WHITE;
+			currentPlayer = ChipColor.WHITE;
 	}
 
 	void FlipChips()
 	{
-		List<GameObject>.Enumerator e = chipsToTurn.GetEnumerator (); 
+		List<GameObject>.Enumerator e = chipsToFlip.GetEnumerator (); 
 
-		int count = chipsToTurn.Count; // just to see on debugger
+		int count = chipsToFlip.Count; // just to see on debugger
 
 		while (e.MoveNext ()) {
+			
 			GameObject oldChip = e.Current;
-			chipColor oldColor;
+			/*
+			ChipColor oldColor;
 			if (oldChip.tag == "ChipWhite")
-				oldColor = chipColor.WHITE;
+				oldColor = ChipColor.WHITE;
 			else
-				oldColor = chipColor.BLACK;
-
+				oldColor = ChipColor.BLACK;
+			*/
 			Vector2 square = GetSquareFromTransform (oldChip.transform.position);
 			int squareX = (int)square.x;
 			int squareY = (int)square.y;
 
 			Destroy (e.Current);
 
-			if (oldColor == chipColor.WHITE)
+			//if (oldColor == ChipColor.WHITE)
+			if (currentPlayer == ChipColor.BLACK) {
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-			else
+				countBlack++;
+				countWhite--;
+			} else {
 				gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
+				countWhite++;
+				countBlack--;
+			}
 		}
 
-		chipsToTurn.Clear ();
+		UpdateUI ();
+		chipsToFlip.Clear ();
 	}
 }
