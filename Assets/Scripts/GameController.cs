@@ -247,25 +247,17 @@ public class GameController : MonoBehaviour {
 	{
 		List<GameObject>.Enumerator e = chipsToFlip.GetEnumerator (); 
 
-		int count = chipsToFlip.Count; // just to see on debugger
+		Debug.Log ("chipsToFli Count: " + chipsToFlip.Count);
 
 		while (e.MoveNext ()) {
 			
 			GameObject oldChip = e.Current;
-			/*
-			ChipColor oldColor;
-			if (oldChip.tag == "ChipWhite")
-				oldColor = ChipColor.WHITE;
-			else
-				oldColor = ChipColor.BLACK;
-			*/
 			Vector2 square = GetSquareFromTransform (oldChip.transform.position);
 			int squareX = (int)square.x;
 			int squareY = (int)square.y;
 
 			Destroy (e.Current);
 
-			//if (oldColor == ChipColor.WHITE)
 			if (currentPlayer == ChipColor.BLACK) {
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 				countBlack++;
