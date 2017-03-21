@@ -15,6 +15,8 @@ public class GameController : MonoBehaviour {
 	public Text countBlackText;
 	int countWhite;
 	int countBlack; 
+	//TODO: this is not needed if found a bug of having several pointer events
+	//bool lockPointer = false;
 
 	public enum Player {HUMAN, COMPUTER};
 	public GameObject gameboardImage;
@@ -24,7 +26,7 @@ public class GameController : MonoBehaviour {
 	public Player opponent = Player.HUMAN;
 	ChipColor currentPlayer = ChipColor.WHITE;				// white always starts
 
-	CompPlayer compPlayer;
+	public CompPlayer compPlayer;
 
 	GameObject[,] gameBoard = new GameObject[8, 8];
 	List<GameObject> chipsToFlip = new List<GameObject>();	// used to store chips, which potentially will be turned
@@ -99,48 +101,56 @@ public class GameController : MonoBehaviour {
 		return new Vector2 (squareX, squareY);
 	}
 
+	bool HumanPlays ()
+	{
+		if (currentPlayer == ChipColor.BLACK && opponent == Player.COMPUTER)
+			return false;
+		else
+			return true;
+	}
 
-	public bool IsValidMove (int squareX, int squareY, ChipColor color)
+	// checkAndFlip parameter defines, whether position is checked and flipped, or only checked
+	public bool IsValidMove (int squareX, int squareY, ChipColor color, bool checkAndFlip = true)
 	{
 		bool isValid = false;
 
 		if (gameBoard [squareX, squareY] != null)
 			return false;
 
-		if (CheckDirection (squareX, squareY, -1, -1, color)) {
+		if (CheckDirection (squareX, squareY, -1, -1, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
-		if (CheckDirection (squareX, squareY, -1,  0, color)) {
+		if (CheckDirection (squareX, squareY, -1,  0, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
-		if (CheckDirection (squareX, squareY, -1,  1, color)) {
+		if (CheckDirection (squareX, squareY, -1,  1, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
-		if (CheckDirection (squareX, squareY,  0,  1, color)) {
+		if (CheckDirection (squareX, squareY,  0,  1, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
-		if (CheckDirection (squareX, squareY,  1,  1, color)) {
+		if (CheckDirection (squareX, squareY,  1,  1, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
-		if (CheckDirection (squareX, squareY,  1,  0, color)) {
+		if (CheckDirection (squareX, squareY,  1,  0, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
-		if (CheckDirection (squareX, squareY,  1, -1, color)) {
+		if (CheckDirection (squareX, squareY,  1, -1, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
-		if (CheckDirection (squareX, squareY,  0, -1, color)) {
+		if (CheckDirection (squareX, squareY,  0, -1, color, checkAndFlip)) {
 			isValid = true;
 			FlipChips ();
 		}
 
-		if (isValid) {
+		if (isValid  && checkAndFlip) {
 			if (currentPlayer == ChipColor.WHITE)
 				countWhite++;
 			else
@@ -152,7 +162,7 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	bool CheckDirection (int squareX, int squareY, int deltaX, int deltaY, ChipColor color, int count = 0)
+	bool CheckDirection (int squareX, int squareY, int deltaX, int deltaY, ChipColor color, bool checkAndFlip = true, int count = 0)
 	{
 		int checkX = squareX + deltaX;
 		int checkY = squareY + deltaY;
@@ -165,8 +175,9 @@ public class GameController : MonoBehaviour {
 				return false;
 			else {
 				count++;
-				chipsToFlip.Add (gameBoard[checkX, checkY]);
-				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false) {
+				if (checkAndFlip)
+					chipsToFlip.Add (gameBoard[checkX, checkY]);
+				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, checkAndFlip, count) == false) {
 					chipsToFlip.Clear ();	
 					return false;
 				}
@@ -176,8 +187,9 @@ public class GameController : MonoBehaviour {
 				return false;
 			else if (SquareColor (checkX, checkY) != color) {
 				count++;
-				chipsToFlip.Add (gameBoard[checkX, checkY]);
-				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false) {
+				if (checkAndFlip)
+					chipsToFlip.Add (gameBoard[checkX, checkY]);
+				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, checkAndFlip, count) == false) {
 					chipsToFlip.Clear ();
 					return false;
 				}
@@ -206,8 +218,10 @@ public class GameController : MonoBehaviour {
 
 	public void PointerDown(float coordX, float coordY)
 	{
-		if (currentPlayer == ChipColor.BLACK && opponent != Player.HUMAN)
+		if (currentPlayer == ChipColor.BLACK && opponent == Player.COMPUTER)
 			return;
+
+		//lockPointer = true;
 
 		Vector2 square = GetSquareFromCoord (coordX, coordY);
 		int squareX = (int)square.x;
@@ -221,8 +235,13 @@ public class GameController : MonoBehaviour {
 			FlipChips ();
 			ChangeTurn ();
 		
-		} else
+		} else {
+			//lockPointer = false;
 			chipsToFlip.Clear ();
+		}
+
+		//TODO: check if this is needed
+		UpdateUI ();
 	}
 
 
@@ -230,24 +249,34 @@ public class GameController : MonoBehaviour {
 	{
 		if (currentPlayer == ChipColor.WHITE) {
 			currentPlayer = ChipColor.BLACK;
-			if (opponent == Player.COMPUTER)
-			{
-				//Vector2 proposedMove = new Vector2 ();
-				Vector2 proposedMove = compPlayer.ProposeMove (gameBoard, compStrategy);
-				int squareX = (int)proposedMove.x;
-				int squareY = (int)proposedMove.y;
-				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
+			if (opponent == Player.COMPUTER) {
+				Vector2? proposedMove = compPlayer.ProposeMove (gameBoard, compStrategy);
+				if (proposedMove != null) {
+					int squareX = (int)proposedMove.Value.x;
+					int squareY = (int)proposedMove.Value.y;
+					if (!IsValidMove (squareX, squareY, ChipColor.BLACK)) // validity is already know, but this also flips needed squares
+					Debug.Assert (false, "ERROR::ChangeTurn: Move not valid, although validated earlier");
+					gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
+					//lockPointer = false;
+					currentPlayer = ChipColor.WHITE;
+				}
+				else
+					currentPlayer = ChipColor.WHITE;
 			}
-		}
-		else
+		} else {
+			//lockPointer = false;
 			currentPlayer = ChipColor.WHITE;
+		}
+
+		//TODO: check if this is needed
+		UpdateUI ();
 	}
 
 	void FlipChips()
 	{
 		List<GameObject>.Enumerator e = chipsToFlip.GetEnumerator (); 
 
-		Debug.Log ("chipsToFli Count: " + chipsToFlip.Count);
+		Debug.Log ("chipsToFlip Count: " + chipsToFlip.Count);
 
 		while (e.MoveNext ()) {
 			
