@@ -19,6 +19,7 @@ public class GameController : MonoBehaviour {
 	//bool lockPointer = false;
 
 	public enum Player {HUMAN, COMPUTER};
+	public float computerTurnWait;
 	public GameObject gameboardImage;
 	public GameObject chipBlack;
 	public GameObject chipWhite;
@@ -249,28 +250,38 @@ public class GameController : MonoBehaviour {
 	{
 		if (currentPlayer == ChipColor.WHITE) {
 			currentPlayer = ChipColor.BLACK;
-			if (opponent == Player.COMPUTER) {
-				Vector2? proposedMove = compPlayer.ProposeMove (gameBoard, compStrategy);
-				if (proposedMove != null) {
-					int squareX = (int)proposedMove.Value.x;
-					int squareY = (int)proposedMove.Value.y;
-					if (!IsValidMove (squareX, squareY, ChipColor.BLACK)) // validity is already know, but this also flips needed squares
-					Debug.Assert (false, "ERROR::ChangeTurn: Move not valid, although validated earlier");
-					gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-					//lockPointer = false;
-					currentPlayer = ChipColor.WHITE;
-				}
-				else
-					currentPlayer = ChipColor.WHITE;
-			}
+			if (opponent == Player.COMPUTER)
+				StartCoroutine (ChangeToComputer ());
 		} else {
 			//lockPointer = false;
 			currentPlayer = ChipColor.WHITE;
 		}
-
+			
 		//TODO: check if this is needed
 		UpdateUI ();
 	}
+
+
+	IEnumerator ChangeToComputer ()
+	{
+		yield return new WaitForSeconds (computerTurnWait);
+
+		Vector2? proposedMove = compPlayer.ProposeMove (gameBoard, compStrategy);
+		if (proposedMove != null) {
+			int squareX = (int)proposedMove.Value.x;
+			int squareY = (int)proposedMove.Value.y;
+			if (!IsValidMove (squareX, squareY, ChipColor.BLACK)) // validity is already know, but this also flips needed squares
+				Debug.Assert (false, "ERROR::ChangeTurn: Move not valid, although validated earlier");
+			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
+			//lockPointer = false;
+			currentPlayer = ChipColor.WHITE;
+		}
+		else
+			currentPlayer = ChipColor.WHITE;
+
+		UpdateUI ();
+	}
+
 
 	void FlipChips()
 	{

@@ -46,7 +46,6 @@ public class CompPlayer : MonoBehaviour {
 		if (validMoves.Count == 0)
 			returnVector = null;
 		else {
-			//TODO: currently returning always first option - enable random again when bugs are fixed
 			int randomMove = Random.Range (0, validMoves.Count);
 			returnVector = validMoves [randomMove];
 		}
