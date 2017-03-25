@@ -15,6 +15,8 @@ public class GameController : MonoBehaviour {
 	public Text countBlackText;
 	int countWhite;
 	int countBlack; 
+	public GameObject bigButton;
+
 	//TODO: this is not needed if found a bug of having several pointer events
 	//bool lockPointer = false;
 
@@ -60,8 +62,8 @@ public class GameController : MonoBehaviour {
 
 	void UpdateUI ()
 	{
-		countWhiteText.text = "White: " + countWhite.ToString ();
-		countBlackText.text = "Black: " + countBlack.ToString ();
+		countWhiteText.text = countWhite.ToString ();
+		countBlackText.text = countBlack.ToString ();
 
 	}
 
@@ -253,7 +255,7 @@ public class GameController : MonoBehaviour {
 			if (opponent == Player.COMPUTER)
 				StartCoroutine (ChangeToComputer ());
 		} else {
-			//lockPointer = false;
+			bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.white;
 			currentPlayer = ChipColor.WHITE;
 		}
 			
@@ -264,6 +266,8 @@ public class GameController : MonoBehaviour {
 
 	IEnumerator ChangeToComputer ()
 	{
+		bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
+
 		yield return new WaitForSeconds (computerTurnWait);
 
 		Vector2? proposedMove = compPlayer.ProposeMove (gameBoard, compStrategy);
@@ -274,12 +278,13 @@ public class GameController : MonoBehaviour {
 				Debug.Assert (false, "ERROR::ChangeTurn: Move not valid, although validated earlier");
 			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			//lockPointer = false;
-			currentPlayer = ChipColor.WHITE;
+			//currentPlayer = ChipColor.WHITE;
 		}
-		else
-			currentPlayer = ChipColor.WHITE;
+		//else
+			//currentPlayer = ChipColor.WHITE;
 
-		UpdateUI ();
+		ChangeTurn ();
+		//UpdateUI ();
 	}
 
 
