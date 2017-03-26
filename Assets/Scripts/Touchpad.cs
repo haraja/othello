@@ -9,7 +9,6 @@ public class Touchpad : MonoBehaviour, IPointerDownHandler {
 	
 	public void OnPointerDown (PointerEventData data)
 	{
-		//Debug.Log ("PointerDown: " + data.position);
 		gameController.PointerDown (data.position.x, data.position.y);
 	}
 }

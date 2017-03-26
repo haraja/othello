@@ -29,14 +29,23 @@ public class GameController : MonoBehaviour {
 	public Player opponent = Player.HUMAN;
 	ChipColor currentPlayer = ChipColor.WHITE;				// white always starts
 
-	public CompPlayer compPlayer;
+	CompPlayer compPlayer;
 
 	GameObject[,] gameBoard = new GameObject[8, 8];
 	List<GameObject> chipsToFlip = new List<GameObject>();	// used to store chips, which potentially will be turned
 	public CompStrategy compStrategy = CompStrategy.RANDOM;
 
 
-	void Start () {
+	public void StartGame ()
+	{
+		Debug.Log ("GameController::StartGame");
+
+	}
+
+	void Start () 
+	{
+		compPlayer = gameObject.AddComponent<CompPlayer> ();
+
 		InitBoard ();
 		UpdateUI ();
 	}
@@ -277,14 +286,9 @@ public class GameController : MonoBehaviour {
 			if (!IsValidMove (squareX, squareY, ChipColor.BLACK)) // validity is already know, but this also flips needed squares
 				Debug.Assert (false, "ERROR::ChangeTurn: Move not valid, although validated earlier");
 			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-			//lockPointer = false;
-			//currentPlayer = ChipColor.WHITE;
 		}
-		//else
-			//currentPlayer = ChipColor.WHITE;
 
 		ChangeTurn ();
-		//UpdateUI ();
 	}
 
 

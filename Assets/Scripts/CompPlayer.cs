@@ -4,10 +4,20 @@ using UnityEngine;
 
 
 // Notice, that this class proposes moves always for black color only
-public class CompPlayer : MonoBehaviour {
+public class CompPlayer : MonoBehaviour{
 
-	public GameController gameController;
+	GameController gameController;
 	List<Vector2> validMoves = new List<Vector2>();
+
+
+	public void Start ()
+	{
+		GameObject gameControllerObject = GameObject.FindWithTag ("GameController");
+		if (gameControllerObject != null)
+			gameController = gameControllerObject.GetComponent<GameController> ();
+		else
+			Debug.Log ("CompPlayer::Cannot Find GameController");
+	}
 
 
 	public Vector2? ProposeMove (GameObject[,] gameBoard, CompStrategy compStrategy)
