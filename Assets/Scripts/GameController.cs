@@ -131,7 +131,8 @@ public class GameController : MonoBehaviour {
 
 		if (CheckDirection (squareX, squareY, -1, -1, color, checkAndFlip)) {
 			isValid = true;
-			FlipChips ();
+			if (checkAndFlip)
+				FlipChips ();
 		}
 		if (CheckDirection (squareX, squareY, -1,  0, color, checkAndFlip)) {
 			isValid = true;
@@ -139,27 +140,33 @@ public class GameController : MonoBehaviour {
 		}
 		if (CheckDirection (squareX, squareY, -1,  1, color, checkAndFlip)) {
 			isValid = true;
-			FlipChips ();
+			if (checkAndFlip)
+				FlipChips ();
 		}
 		if (CheckDirection (squareX, squareY,  0,  1, color, checkAndFlip)) {
 			isValid = true;
-			FlipChips ();
+			if (checkAndFlip)
+				FlipChips ();
 		}
 		if (CheckDirection (squareX, squareY,  1,  1, color, checkAndFlip)) {
 			isValid = true;
-			FlipChips ();
+			if (checkAndFlip)
+				FlipChips ();
 		}
 		if (CheckDirection (squareX, squareY,  1,  0, color, checkAndFlip)) {
 			isValid = true;
-			FlipChips ();
+			if (checkAndFlip)
+				FlipChips ();
 		}
 		if (CheckDirection (squareX, squareY,  1, -1, color, checkAndFlip)) {
 			isValid = true;
-			FlipChips ();
+			if (checkAndFlip)
+				FlipChips ();
 		}
 		if (CheckDirection (squareX, squareY,  0, -1, color, checkAndFlip)) {
 			isValid = true;
-			FlipChips ();
+			if (checkAndFlip)
+				FlipChips ();
 		}
 
 		if (isValid  && checkAndFlip) {
@@ -261,8 +268,10 @@ public class GameController : MonoBehaviour {
 	{
 		if (currentPlayer == ChipColor.WHITE) {
 			currentPlayer = ChipColor.BLACK;
-			if (opponent == Player.COMPUTER)
+			if (opponent == Player.COMPUTER) {
+				bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
 				StartCoroutine (ChangeToComputer ());
+			}
 		} else {
 			bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.white;
 			currentPlayer = ChipColor.WHITE;
@@ -275,8 +284,6 @@ public class GameController : MonoBehaviour {
 
 	IEnumerator ChangeToComputer ()
 	{
-		bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
-
 		yield return new WaitForSeconds (computerTurnWait);
 
 		Vector2? proposedMove = compPlayer.ProposeMove (gameBoard, compStrategy);
