@@ -46,7 +46,7 @@ public class CompPlayer : MonoBehaviour{
 		// TODO: Remove arraylength hardcodings
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
-				if (gameController.IsValidMove (x, y, ChipColor.BLACK, false))
+				if (gameController.IsValidMove (x, y, ChipColor.BLACK))
 					validMoves.Add (new Vector2 (x, y));
 			}
 		}
@@ -57,7 +57,8 @@ public class CompPlayer : MonoBehaviour{
 			returnVector = null;
 		else {
 			int randomMove = Random.Range (0, validMoves.Count);
-			returnVector = validMoves [randomMove];
+			//returnVector = validMoves [randomMove];
+			returnVector = validMoves [0];
 		}
 		return returnVector;
 	}
