@@ -13,8 +13,6 @@ public class GameController : MonoBehaviour {
 
 	public Text countWhiteText;
 	public Text countBlackText;
-	int countWhite;
-	int countBlack; 
 	bool doneFlipping = false;
 
 	//TODO: this is not needed if found a bug of having several pointer events
@@ -61,29 +59,36 @@ public class GameController : MonoBehaviour {
 
 	void InitBoard()
 	{
-		for (int i=0; i<8; i++){
-			for (int j = 0; j < 8; j++) {
+		for (int i=0; i<8; i++)
+			for (int j = 0; j < 8; j++)
 				gameBoard[i, j] = null;
-			}
-		}
 			
 		gameBoard [3, 3] = Instantiate (chipWhite,  GetCoordFromSquare(3, 3), Quaternion.identity) as GameObject;
 		gameBoard [4, 4] = Instantiate (chipWhite,  GetCoordFromSquare(4, 4), Quaternion.identity) as GameObject;
 		gameBoard [3, 4] = Instantiate (chipBlack,  GetCoordFromSquare(3, 4), Quaternion.identity) as GameObject;
 		gameBoard [4, 3] = Instantiate (chipBlack,  GetCoordFromSquare(4, 3), Quaternion.identity) as GameObject;
-		//gameBoard [2, 4] = Instantiate (chipBlack,  GetCoordFromSquare(2, 4), Quaternion.identity) as GameObject;
-		//gameBoard [1, 4] = Instantiate (chipBlack,  GetCoordFromSquare(1, 4), Quaternion.identity) as GameObject;
-
-		countWhite = 2;
-		countBlack = 2;
-}
+	}
 
 
 	void UpdateUI ()
 	{
-		countWhiteText.text = countWhite.ToString ();
-		countBlackText.text = countBlack.ToString ();
+		countWhiteText.text = CountChips (ChipColor.WHITE).ToString ();
+		countBlackText.text = CountChips (ChipColor.BLACK).ToString ();
+	}
 
+
+	int CountChips (ChipColor color)
+	{
+		int count = 0;
+
+		for (int i = 0; i < 8; i++)
+			for (int j = 0; j < 8; j++)
+				if (gameBoard [i, j] != null && 
+					((color == ChipColor.WHITE && gameBoard [i, j].tag == "ChipWhite") ||
+					 (color == ChipColor.BLACK && gameBoard [i, j].tag == "ChipBlack")))
+					count++;
+
+		return count;
 	}
 
 
@@ -156,12 +161,10 @@ public class GameController : MonoBehaviour {
 		if (IsValidMove (squareX, squareY, currentPlayer)) {
 			if (currentPlayer == ChipColor.WHITE) {
 				gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-				countWhite++;
 			} else {
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-				countBlack++;
 			}
-			UpdateUI ();
+			//UpdateUI ();
 			StartCoroutine (ChangeTurn ());
 
 		}
@@ -233,7 +236,7 @@ public class GameController : MonoBehaviour {
 		}
 		*/
 
-		UpdateUI ();
+		//UpdateUI ();
 		return isValid;
 	}
 
@@ -298,8 +301,7 @@ public class GameController : MonoBehaviour {
 			if (!IsValidMove (squareX, squareY, ChipColor.BLACK)) // validity is already know, but this also flips needed squares
 				Debug.LogAssertion ("ERROR::ChangeTurn: Move not valid, although validated earlier");
 			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-			countBlack++;
-			UpdateUI ();
+			//UpdateUI ();
 		}
 
 		ChangeTurn ();
@@ -335,19 +337,14 @@ public class GameController : MonoBehaviour {
 				//Destroy (e.Current);
 				Destroy (chipsToFlip [i]);
 
-				if (currentPlayer == ChipColor.BLACK) {
+				if (currentPlayer == ChipColor.BLACK)
 					gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-					countBlack++;
-					countWhite--;
-				} else {
+				else
 					gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-					countWhite++;
-					countBlack--;
-				}
 			}
 		}
 
-		UpdateUI ();
+		//UpdateUI ();
 		doneFlipping = true;
 	}
 
@@ -357,6 +354,8 @@ public class GameController : MonoBehaviour {
 		Debug.Log ("ChangePlayer::Time: " + Time.time);
 
 		doneFlipping = false;
+		UpdateUI ();
+
 		// Change the color of BigButton, and the player turn
 		if (currentPlayer == ChipColor.WHITE) {
 			currentPlayer = ChipColor.BLACK;
