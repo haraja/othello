@@ -165,7 +165,7 @@ public class GameController : MonoBehaviour {
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			}
 			//UpdateUI ();
-			StartCoroutine (ChangeTurn ());
+			StartCoroutine (FlipChips ());
 
 		}
 	}
@@ -299,35 +299,28 @@ public class GameController : MonoBehaviour {
 			int squareX = (int)proposedMove.Value.x;
 			int squareY = (int)proposedMove.Value.y;
 			if (!IsValidMove (squareX, squareY, ChipColor.BLACK)) // validity is already know, but this also flips needed squares
-				Debug.LogAssertion ("ERROR::ChangeTurn: Move not valid, although validated earlier");
+				Debug.LogAssertion ("ERROR::ChangeToComputer: Move not valid, although validated earlier");
 			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			//UpdateUI ();
 		}
 
-		ChangeTurn ();
+		FlipChips ();
 	}
 
 
-	IEnumerator ChangeTurn ()
+	IEnumerator FlipChips ()
 	{
 		// Flip chips
 		//List<GameObject>.Enumerator e = chipsToFlip.GetEnumerator (); 
 		Debug.Log ("chipsToFlip Count: " + chipsToFlip.Count);
 		//while (e.MoveNext ()) {
-		Debug.Log ("ChangeTurn::Time1: " + Time.time);
 		if (chipsToFlip.Count != 0) {
 			for (int i = 0; i < chipsToFlip.Count; i++) {
 
-				Debug.Log ("ChangeTurn::Time2: " + Time.time);
-
 				yield return new WaitForSeconds (chipTurnWait);
 
-				Debug.Log ("ChangeTurn::Time3: " + Time.time);
-
-				//Vector2 square = GetSquareFromTransform (e.Current.transform.position);
-
 				if (chipsToFlip [i] == null)
-					Debug.LogAssertion ("ERROR::ChangeTurn: list position is empty, i: " + i.ToString ());
+					Debug.LogAssertion ("ERROR::FlipChips: list position is empty, i: " + i.ToString ());
 
 				Vector2 square = GetSquareFromTransform (chipsToFlip [i].transform.position);
 
@@ -351,17 +344,16 @@ public class GameController : MonoBehaviour {
 
 	IEnumerator ChangePlayer ()
 	{
-		Debug.Log ("ChangePlayer::Time: " + Time.time);
-
 		doneFlipping = false;
+		chipsToFlip.Clear ();
 		UpdateUI ();
 
 		// Change the color of BigButton, and the player turn
 		if (currentPlayer == ChipColor.WHITE) {
 			currentPlayer = ChipColor.BLACK;
-			if (opponent == Player.COMPUTER) {
-				bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
+			bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
 
+			if (opponent == Player.COMPUTER) {
 				yield return new WaitForSeconds (computerTurnWait);
 				ChangeToComputer ();
 				yield break;
@@ -370,7 +362,5 @@ public class GameController : MonoBehaviour {
 			bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.white;
 			currentPlayer = ChipColor.WHITE;
 		}
-
-		chipsToFlip.Clear ();
 	}
 }
