@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿//TODO: If Player don't have choice to set a chip, other player gets a turn
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
 
 
 public enum ChipColor {WHITE, BLACK};
@@ -18,8 +20,8 @@ public class GameController : MonoBehaviour {
 	//TODO: this is not needed if found a bug of having several pointer events
 	//bool lockPointer = false;
 
-	public GameObject bigButton;
 	public enum Player {HUMAN, COMPUTER};
+	public GameObject bigButton;
 	public float computerTurnWait;
 	public float chipTurnWait; 
 	public GameObject gameboardImage;
@@ -304,7 +306,7 @@ public class GameController : MonoBehaviour {
 			//UpdateUI ();
 		}
 
-		FlipChips ();
+		StartCoroutine (FlipChips ());
 	}
 
 
@@ -346,6 +348,9 @@ public class GameController : MonoBehaviour {
 	{
 		doneFlipping = false;
 		chipsToFlip.Clear ();
+
+		//yield return new WaitForSeconds (computerTurnWait);
+
 		UpdateUI ();
 
 		// Change the color of BigButton, and the player turn
@@ -356,7 +361,6 @@ public class GameController : MonoBehaviour {
 			if (opponent == Player.COMPUTER) {
 				yield return new WaitForSeconds (computerTurnWait);
 				ChangeToComputer ();
-				yield break;
 			}
 		} else {
 			bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.white;
