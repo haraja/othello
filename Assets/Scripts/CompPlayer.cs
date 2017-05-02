@@ -57,9 +57,10 @@ public class CompPlayer : MonoBehaviour{
 			returnVector = null;
 		else {
 			int randomMove = Random.Range (0, validMoves.Count);
-			// returnVector = validMoves [randomMove];
+			 returnVector = validMoves [randomMove];
+
 			// for debug/development purposes, always return the same move
-			returnVector = validMoves [0];
+			//returnVector = validMoves [0];
 		}
 		return returnVector;
 	}
