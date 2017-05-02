@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿//TOD: generalize checking valid moves
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,7 +49,6 @@ public class CompPlayer : MonoBehaviour{
 	{
 		List<Vector2> validMoves = new List<Vector2>();
 
-		// TODO: Remove arraylength hardcodings
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				if (gameController.IsValidMove (x, y, ChipColor.BLACK) > 0)
@@ -70,13 +71,12 @@ public class CompPlayer : MonoBehaviour{
 	}
 
 
-	//TODO: Add randomness for possibly many max values. Now returns the first location where max value of flips is
 	// returns place for move, which brings most chips
 	public Vector2? GreedyMode (GameObject[,] gameboard)
 	{
-		List<Vector3> validMoves = new List<Vector3>();
+		List<Vector3> validMoves = new List<Vector3>();		// all valid moves
+		List<Vector2> greedyMoves = new List<Vector2>();	// moves with most chips
 
-		// TODO: Remove arraylength hardcodings
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				int flipCount = gameController.IsValidMove (x, y, ChipColor.BLACK);
@@ -90,14 +90,20 @@ public class CompPlayer : MonoBehaviour{
 			returnPosition = null;
 		else {
 			int flipMaxCount = 0;
-			int flipMaxIndex = 0;
+			//int flipMaxIndex = 0;
 			for (int i = 0; i < validMoves.Count; i++) {
-				if (validMoves [i].z > flipMaxCount) {
+				if (validMoves [i].z == flipMaxCount) {
 					flipMaxCount = (int)validMoves [i].z;
-					flipMaxIndex = i;
+					greedyMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
+				} else if (validMoves [i].z > flipMaxCount) {
+					greedyMoves.Clear ();
+					flipMaxCount = (int)validMoves [i].z;
+					greedyMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
 				}
 			}
-			returnPosition = validMoves [flipMaxIndex];
+
+			int randomGreedyMove = Random.Range (0, greedyMoves.Count);
+			returnPosition = greedyMoves [randomGreedyMove];
 		}
 
 		return returnPosition;
