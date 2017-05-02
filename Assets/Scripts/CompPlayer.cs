@@ -45,7 +45,7 @@ public class CompPlayer : MonoBehaviour{
 
 
 	// returns place for random suitable move
-	public Vector2? RandomMode (GameObject[,] gameboard)
+	Vector2? RandomMode (GameObject[,] gameboard)
 	{
 		List<Vector2> validMoves = new List<Vector2>();
 
@@ -72,7 +72,7 @@ public class CompPlayer : MonoBehaviour{
 
 
 	// returns place for move, which brings most chips
-	public Vector2? GreedyMode (GameObject[,] gameboard)
+	Vector2? GreedyMode (GameObject[,] gameboard)
 	{
 		List<Vector3> validMoves = new List<Vector3>();		// all valid moves
 		List<Vector2> greedyMoves = new List<Vector2>();	// moves with most chips
