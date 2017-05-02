@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 
 public enum ChipColor {WHITE, BLACK};
-public enum CompStrategy {RANDOM};
+public enum CompStrategy {RANDOM, GREEDY};
 
 
 public class GameController : MonoBehaviour {
@@ -160,7 +160,7 @@ public class GameController : MonoBehaviour {
 		int squareX = (int)square.x;
 		int squareY = (int)square.y;
 
-		if (IsValidMove (squareX, squareY, currentPlayer)) {
+		if (IsValidMove (squareX, squareY, currentPlayer) > 0) {
 			if (currentPlayer == ChipColor.WHITE) {
 				gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			} else {
@@ -173,73 +173,55 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	// checkAndFlip parameter defines, whether position is checked and flipped, or only checked
-	public bool IsValidMove (int squareX, int squareY, ChipColor color)
+	// returns number of chips, which position would be gaining. 0 means this is not valid move
+	public int IsValidMove (int squareX, int squareY, ChipColor color)
 	{
-		bool isValid = false;
 		chipsToFlip.Clear ();
 
 		if (gameBoard [squareX, squareY] != null)
-			return false;
+			return 0;
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, -1, -1, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, -1, 0, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, -1, 1, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, 0, 1, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, 1, 1, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, 1, 0, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, 1, -1, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, 0, -1, color)) {
 			AddChipsToFlip ();
-			isValid = true;
 		}
-		/*
-		if (isValid ) {
-			if (currentPlayer == ChipColor.WHITE)
-				countWhite++;
-			else
-				countBlack++;
-		}
-		*/
 
-		//UpdateUI ();
-		return isValid;
+		return chipsToFlip.Count;
 	}
 
 
@@ -300,7 +282,7 @@ public class GameController : MonoBehaviour {
 		if (proposedMove != null) {
 			int squareX = (int)proposedMove.Value.x;
 			int squareY = (int)proposedMove.Value.y;
-			if (!IsValidMove (squareX, squareY, ChipColor.BLACK)) // validity is already know, but this also flips needed squares
+			if (IsValidMove (squareX, squareY, ChipColor.BLACK) == 0) // validity is already know, but this also flips needed squares
 				Debug.LogAssertion ("ERROR::ChangeToComputer: Move not valid, although validated earlier");
 			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			//UpdateUI ();
