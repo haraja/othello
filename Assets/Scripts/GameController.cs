@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 
 public enum ChipColor {WHITE, BLACK};
-public enum CompStrategy {RANDOM, GREEDY};
+public enum CompStrategy {RANDOM, GREEDY, CALCULATING1};
 
 
 public class GameController : MonoBehaviour {
