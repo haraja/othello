@@ -126,8 +126,8 @@ MonoBehaviour:
   gameboardImage: {fileID: 1800495872}
   chipBlack: {fileID: 1290418964432682, guid: 9351091a673064c139a81c8e86453391, type: 2}
   chipWhite: {fileID: 1442787813767632, guid: a9b4ee6d77a434768aa2f747ba64c0ae, type: 2}
-  opponent: 0
-  compStrategy: 0
+  opponent: 1
+  compStrategy: 2
 --- !u!4 &671359277
 Transform:
   m_ObjectHideFlags: 0

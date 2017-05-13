@@ -78,11 +78,11 @@ public class CompPlayer : MonoBehaviour{
 	//	Game Modes
 	//
 
+
 	// returns place for move, which brings most chips
 	Vector2? GreedyMode (GameObject[,] gameboard)
 	{
 		List<Vector3> validMoves = new List<Vector3>();		// all valid moves
-		List<Vector2> greedyMoves = new List<Vector2>();	// moves with most chips
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
@@ -92,29 +92,10 @@ public class CompPlayer : MonoBehaviour{
 			}
 		}
 
-		Vector2? returnPosition ;
-
 		if (validMoves.Count == 0)
-			returnPosition = null;
-		else {
-			// fill the array with positions, which have most flips
-			int flipMaxCount = 0;
-			for (int i = 0; i < validMoves.Count; i++) {
-				if (validMoves [i].z == flipMaxCount) {
-					flipMaxCount = (int)validMoves [i].z;
-					greedyMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
-				} else if (validMoves [i].z > flipMaxCount) {
-					greedyMoves.Clear ();
-					flipMaxCount = (int)validMoves [i].z;
-					greedyMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
-				}
-			}
-
-			int randomGreedyMove = Random.Range (0, greedyMoves.Count);
-			returnPosition = greedyMoves [randomGreedyMove];
-		}
-
-		return returnPosition;
+			return null;
+		else
+			return SelectMove (validMoves);
 	}
 
 
@@ -130,7 +111,7 @@ public class CompPlayer : MonoBehaviour{
 				int flipCount = gameController.IsValidMove (x, y, ChipColor.BLACK);
 				if (flipCount > 0)
 				{
-					int value = 0;
+					int value = 0;	// default value
 
 					// corners
 					if ((x == 0 && y == 0) || (x == 0 && y == 7) || (x == 7 && y == 0) || (x == 7 && y == 7))
@@ -140,15 +121,23 @@ public class CompPlayer : MonoBehaviour{
 					else if ((x == 1 && y == 1) || (x == 1 && y == 6) || (x == 6 && y == 1) || (x == 6 && y == 6))
 						value = -100;
 
-					// edges excluding corners
+					// next to corners, not diagonal
 					else if (
-						(x == 0 && (y > 0 && y < 7)) ||
-						(x == 7 && (y > 0 && y < 7)) ||
-						(y == 0 && (x > 0 && x < 7)) ||
-						(y == 7 && (x > 0 && x < 7)))
+						(x == 0 && (y == 1 && y == 6)) ||
+						(x == 7 && (y == 1 && y == 6)) ||
+						(y == 0 && (x == 1 && x == 6)) ||
+						(y == 7 && (x == 1 && x == 6)))
+						value = -50; 
+
+					// edges excluding corners, next to corners
+					else if (
+						(x == 0 && (y > 1 && y < 6)) ||
+						(x == 7 && (y > 1 && y < 6)) ||
+						(y == 0 && (x > 1 && x < 6)) ||
+						(y == 7 && (x > 1 && x < 6)))
 						value = 30; 
 							
-					// 1 away from edges
+					// 1 away from edges - excluding diagonal to corners
 					else if (
 						(x == 1 && (y > 1 && y < 6)) ||
 						(x == 6 && (y > 1 && y < 6)) ||
@@ -160,30 +149,11 @@ public class CompPlayer : MonoBehaviour{
 				}
 			}
 		}
-
-		Vector2? returnPosition ;
-
+			
 		if (validMoves.Count == 0)
-			returnPosition = null;
-		else {
-			// fill the array with positions, which have most flips
-			int flipMaxCount = 0;
-			for (int i = 0; i < validMoves.Count; i++) {
-				if (validMoves [i].z == flipMaxCount) {
-					flipMaxCount = (int)validMoves [i].z;
-					calculatedMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
-				} else if (validMoves [i].z > flipMaxCount) {
-					calculatedMoves.Clear ();
-					flipMaxCount = (int)validMoves [i].z;
-					calculatedMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
-				}
-			}
-
-			int randomGreedyMove = Random.Range (0, calculatedMoves.Count);
-			returnPosition = calculatedMoves [randomGreedyMove];
-		}
-
-		return returnPosition;
+			return null;
+		else
+			return SelectMove (validMoves);
 	}
 
 
@@ -191,4 +161,26 @@ public class CompPlayer : MonoBehaviour{
 	//	Helper Functions
 	//
 
+
+	// selects most valuable move from valid moves - random most valuable, if several
+	Vector2 SelectMove (List<Vector3> validMoves)
+	{
+		List<Vector2> valuableMoves = new List<Vector2> ();
+
+		// fill the array with positions, which have most flips
+		int maxValue = (int)validMoves [0].z;
+		for (int i = 0; i < validMoves.Count ; i++) {
+			if (validMoves [i].z == maxValue){
+				maxValue = (int)validMoves [i].z;
+				valuableMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
+			} else if (validMoves [i].z > maxValue) {
+				valuableMoves.Clear ();
+				maxValue = (int)validMoves [i].z;
+				valuableMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
+			}
+		}
+
+		int randomValuableMove = Random.Range (0, valuableMoves.Count);
+		return valuableMoves [randomValuableMove];
+	}
 }
