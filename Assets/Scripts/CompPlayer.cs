@@ -62,15 +62,9 @@ public class CompPlayer : MonoBehaviour{
 
 		Vector2? returnPosition;
 		if (validMoves.Count == 0)
-			returnPosition = null;
-		else {
-			int randomMove = Random.Range (0, validMoves.Count);
-			 returnPosition = validMoves [randomMove];
-
-			// for debug/development purposes, always return the same move
-			//returnPosition = validMoves [0];
-		}
-		return returnPosition;
+			return null;
+		else
+			return validMoves [Random.Range (0, validMoves.Count)];
 	}
 
 
@@ -99,8 +93,7 @@ public class CompPlayer : MonoBehaviour{
 	}
 
 
-	//TODO: under construction
-	// returns place for move, which has most value. Blindly considers position of table, don't check other chips
+	// returns place for move, which has most value. Blindly considers position of board, don't check other chips
 	Vector2? Calculating1Mode (GameObject[,] gameboard)
 	{
 		List<Vector3> validMoves = new List<Vector3>();			// all valid moves
@@ -166,9 +159,9 @@ public class CompPlayer : MonoBehaviour{
 	Vector2 SelectMove (List<Vector3> validMoves)
 	{
 		List<Vector2> valuableMoves = new List<Vector2> ();
+		int maxValue = (int)validMoves [0].z;
 
 		// fill the array with positions, which have most flips
-		int maxValue = (int)validMoves [0].z;
 		for (int i = 0; i < validMoves.Count ; i++) {
 			if (validMoves [i].z == maxValue){
 				maxValue = (int)validMoves [i].z;
@@ -180,7 +173,6 @@ public class CompPlayer : MonoBehaviour{
 			}
 		}
 
-		int randomValuableMove = Random.Range (0, valuableMoves.Count);
-		return valuableMoves [randomValuableMove];
+		return valuableMoves [Random.Range (0, valuableMoves.Count)];
 	}
 }
