@@ -17,7 +17,7 @@ public class CompPlayer : MonoBehaviour{
 		if (gameControllerObject != null)
 			gameController = gameControllerObject.GetComponent<GameController> ();
 		else
-			Debug.Log ("CompPlayer::Cannot Find GameController");
+			Debug.LogError ("ERROR::Start: Cannot Find GameController");
 	}
 
 
@@ -89,7 +89,7 @@ public class CompPlayer : MonoBehaviour{
 		if (validMoves.Count == 0)
 			return null;
 		else
-			return SelectMove (validMoves);
+			return SelectMoveFromValid (validMoves);
 	}
 
 
@@ -146,7 +146,7 @@ public class CompPlayer : MonoBehaviour{
 		if (validMoves.Count == 0)
 			return null;
 		else
-			return SelectMove (validMoves);
+			return SelectMoveFromValid (validMoves);
 	}
 
 
@@ -156,7 +156,7 @@ public class CompPlayer : MonoBehaviour{
 
 
 	// selects most valuable move from valid moves - random most valuable, if several
-	Vector2 SelectMove (List<Vector3> validMoves)
+	Vector2 SelectMoveFromValid (List<Vector3> validMoves)
 	{
 		List<Vector2> valuableMoves = new List<Vector2> ();
 		int maxValue = (int)validMoves [0].z;

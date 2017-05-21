@@ -1,7 +1,4 @@
-﻿//TODO: If Player don't have choice to set a chip, other player gets a turn
-
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,11 +12,6 @@ public class GameController : MonoBehaviour {
 
 	public Text countWhiteText;
 	public Text countBlackText;
-	bool doneFlipping = false;
-
-	//TODO: this is not needed if found a bug of having several pointer events
-	//bool lockPointer = false;
-
 	public enum Player {HUMAN, COMPUTER};
 	public GameObject bigButton;
 	public float computerTurnWait;
@@ -27,15 +19,13 @@ public class GameController : MonoBehaviour {
 	public GameObject gameboardImage;
 	public GameObject chipBlack;
 	public GameObject chipWhite;
-	//public ChipColor player1Color = ChipColor.WHITE; 		// initially player1 is hardcoded to play with white
 	public Player opponent = Player.HUMAN;
-	ChipColor currentPlayer = ChipColor.WHITE;				// white always starts
-
-	CompPlayer compPlayer;
-
-	GameObject[,] gameBoard = new GameObject[8, 8];
 	public CompStrategy compStrategy = CompStrategy.RANDOM;
 
+	ChipColor currentPlayer = ChipColor.WHITE;	// white always starts
+	CompPlayer compPlayer;
+	GameObject[,] gameBoard = new GameObject[8, 8];
+	bool doneFlipping = false;
 	// used to store chips, which potentially will be turned. Aggregates all directions
 	List<GameObject> chipsToFlip = new List<GameObject>();	
 	// used to check one direction, whether move is valid
@@ -230,10 +220,11 @@ public class GameController : MonoBehaviour {
 		int checkX = squareX + deltaX;
 		int checkY = squareY + deltaY;
 
-		//TODO: following not possible, as touch area is only on top of the board
-		// First check whether this check would be out of bounds
-		if (checkX < 0 || checkY < 0 || checkX > 7 | checkY > 7)
+		//TODO: Check if following statement should be possible
+		if (checkX < 0 || checkY < 0 || checkX > 7 | checkY > 7) {
+			//Debug.LogError ("ERROR::CheckDirection: Out of bounds selected, although should not be possible");
 			return false;
+		}
 
 		if (count == 0) {
 			if (gameBoard [checkX, checkY] == null || SquareColor (checkX, checkY) == color)
@@ -266,6 +257,21 @@ public class GameController : MonoBehaviour {
 	}
 
 
+	List<Vector2> FindValidMoves (ChipColor color)
+	{
+		List<Vector2> validMoves = new List<Vector2>();
+
+		for (int x = 0; x < 8; x++) {
+			for (int y = 0; y < 8; y++) {
+				if (IsValidMove (x, y, ChipColor.BLACK) > 0)
+					validMoves.Add (new Vector2 (x, y));
+			}
+		}
+
+		return validMoves;
+	}
+
+
 	void AddChipsToFlip ()
 	{
 		List<GameObject>.Enumerator e = chipsOnDirection.GetEnumerator (); 
@@ -274,7 +280,7 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	void ChangeToComputer ()
+	void ComputerPlay ()
 	{
 		chipsToFlip.Clear ();
 
@@ -283,7 +289,7 @@ public class GameController : MonoBehaviour {
 			int squareX = (int)proposedMove.Value.x;
 			int squareY = (int)proposedMove.Value.y;
 			if (IsValidMove (squareX, squareY, ChipColor.BLACK) == 0) // validity is already know, but this also flips needed squares
-				Debug.LogAssertion ("ERROR::ChangeToComputer: Move not valid, although validated earlier");
+				Debug.LogError ("ERROR::ComputerPlay: Move not valid, although validated earlier");
 			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			//UpdateUI ();
 		}
@@ -304,7 +310,7 @@ public class GameController : MonoBehaviour {
 				yield return new WaitForSeconds (chipTurnWait);
 
 				if (chipsToFlip [i] == null)
-					Debug.LogAssertion ("ERROR::FlipChips: list position is empty, i: " + i.ToString ());
+					Debug.LogError ("ERROR::FlipChips: list position is empty, i: " + i.ToString ());
 
 				Vector2 square = GetSquareFromTransform (chipsToFlip [i].transform.position);
 
@@ -321,7 +327,6 @@ public class GameController : MonoBehaviour {
 			}
 		}
 
-		//UpdateUI ();
 		doneFlipping = true;
 	}
 
@@ -335,18 +340,34 @@ public class GameController : MonoBehaviour {
 
 		UpdateUI ();
 
-		// Change the color of BigButton, and the player turn
-		if (currentPlayer == ChipColor.WHITE) {
-			currentPlayer = ChipColor.BLACK;
-			bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
+		ChipColor nextPlayer;
+		if (currentPlayer == ChipColor.WHITE) 
+			nextPlayer = ChipColor.BLACK;
+		else
+			nextPlayer = ChipColor.WHITE;
 
-			if (opponent == Player.COMPUTER) {
-				yield return new WaitForSeconds (computerTurnWait);
-				ChangeToComputer ();
+		//yield return new WaitForSeconds (computerTurnWait);
+
+		// if opposite player has no valid moved available, don't change turn 
+		if (FindValidMoves (nextPlayer).Count > 0) {
+			if (currentPlayer == ChipColor.WHITE) {
+				currentPlayer = nextPlayer;
+				bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
+
+				if (opponent == Player.COMPUTER) {
+					yield return new WaitForSeconds (computerTurnWait);
+					ComputerPlay ();
+				}
+			} else {
+				currentPlayer = nextPlayer;
+				bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.white;
+				yield return null;
 			}
 		} else {
-			bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.white;
-			currentPlayer = ChipColor.WHITE;
+			if (currentPlayer == ChipColor.BLACK && opponent == Player.COMPUTER) {
+				yield return new WaitForSeconds (computerTurnWait);
+				ComputerPlay ();
+			}
 		}
 	}
 }
