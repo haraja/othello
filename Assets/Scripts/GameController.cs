@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Assertions;
 
 
 public enum ChipColor {WHITE, BLACK};
@@ -19,15 +20,17 @@ public class GameController : MonoBehaviour {
 	public GameObject gameboardImage;
 	public GameObject chipBlack;
 	public GameObject chipWhite;
-	public Player opponent = Player.HUMAN;
+	public Player opponent = Player.COMPUTER;
 	public CompStrategy compStrategy = CompStrategy.RANDOM;
 
 	ChipColor currentPlayer = ChipColor.WHITE;	// white always starts
 	CompPlayer compPlayer;
 	GameObject[,] gameBoard = new GameObject[8, 8];
 	bool doneFlipping = false;
+
 	// used to store chips, which potentially will be turned. Aggregates all directions
 	List<GameObject> chipsToFlip = new List<GameObject>();	
+
 	// used to check one direction, whether move is valid
 	List<GameObject> chipsOnDirection = new List<GameObject>();	
 
@@ -80,6 +83,8 @@ public class GameController : MonoBehaviour {
 					 (color == ChipColor.BLACK && gameBoard [i, j].tag == "ChipBlack")))
 					count++;
 
+		Assert.IsTrue (count > 1 && count < 65);
+
 		return count;
 	}
 
@@ -112,6 +117,8 @@ public class GameController : MonoBehaviour {
 		float squareX = coordX / (Screen.width / 8);
 		float squareY = (coordY + Screen.width / 2 - Screen.height / 2) / (Screen.width / 8);
 
+		Assert.IsTrue (squareX >= 0 && squareX <= 7 && squareY >= 0 && squareY <= 7);
+
 		return new Vector2 ((int)squareX, (int)squareY);
 	}
 
@@ -125,6 +132,8 @@ public class GameController : MonoBehaviour {
 		int squareX = (int)((transformPos.x + 5) / 1.25);
 		int squareY = (int)((transformPos.z + 5) / 1.25);
 
+		Assert.IsTrue (squareX >= 0 && squareX <= 7 && squareY >= 0 && squareY <= 7);
+
 		return new Vector2 (squareX, squareY);
 	}
 
@@ -132,7 +141,7 @@ public class GameController : MonoBehaviour {
 	// This function expects, that there is chip on checked square!!!
 	ChipColor SquareColor(int squareX, int squareY)
 	{
-		Debug.Assert (gameBoard[squareX, squareY] != null, "ERROR::SquareColor: Called with null square");
+		Assert.IsNotNull (gameBoard[squareX, squareY]);
 
 		if (gameBoard[squareX, squareY].tag == "ChipWhite")
 			return ChipColor.WHITE;
@@ -288,8 +297,9 @@ public class GameController : MonoBehaviour {
 		if (proposedMove != null) {
 			int squareX = (int)proposedMove.Value.x;
 			int squareY = (int)proposedMove.Value.y;
-			if (IsValidMove (squareX, squareY, ChipColor.BLACK) == 0) // validity is already know, but this also flips needed squares
-				Debug.LogError ("ERROR::ComputerPlay: Move not valid, although validated earlier");
+			int count = IsValidMove (squareX, squareY, ChipColor.BLACK); // validity is already know, but this also flips needed squares
+			Assert.IsTrue (count > 0);
+
 			gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			//UpdateUI ();
 		}
@@ -302,7 +312,7 @@ public class GameController : MonoBehaviour {
 	{
 		// Flip chips
 		//List<GameObject>.Enumerator e = chipsToFlip.GetEnumerator (); 
-		Debug.Log ("chipsToFlip Count: " + chipsToFlip.Count);
+		//Debug.Log ("chipsToFlip Count: " + chipsToFlip.Count);
 		//while (e.MoveNext ()) {
 		if (chipsToFlip.Count != 0) {
 			for (int i = 0; i < chipsToFlip.Count; i++) {
@@ -331,6 +341,7 @@ public class GameController : MonoBehaviour {
 	}
 
 
+	//TODO: BUG: Checking the turn seems to stuck every now and then
 	IEnumerator ChangePlayer ()
 	{
 		doneFlipping = false;
@@ -364,6 +375,7 @@ public class GameController : MonoBehaviour {
 				yield return null;
 			}
 		} else {
+			Debug.Log ("ChangePlayer: No moves");
 			if (currentPlayer == ChipColor.BLACK && opponent == Player.COMPUTER) {
 				yield return new WaitForSeconds (computerTurnWait);
 				ComputerPlay ();

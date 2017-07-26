@@ -3,6 +3,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 
 // Notice, that this class proposes moves always for black color only
@@ -38,7 +39,7 @@ public class CompPlayer : MonoBehaviour{
 			proposedMove = Calculating1Mode (gameBoard);
 			break;
 		default:
-			Debug.LogError ("ERROR::IsValidMove: Unexpected condition reached");
+			Debug.LogError ("ERROR::ProposeMove: Unexpected condition reached");
 			break;
 		}
 
@@ -58,7 +59,7 @@ public class CompPlayer : MonoBehaviour{
 					validMoves.Add (new Vector2 (x, y));
 			}
 		}
-		Debug.Log ("validMoves count: " + validMoves.Count);
+		//Debug.Log ("validMoves count: " + validMoves.Count);
 
 		Vector2? returnPosition;
 		if (validMoves.Count == 0)
@@ -172,6 +173,8 @@ public class CompPlayer : MonoBehaviour{
 				valuableMoves.Add (new Vector2 (validMoves [i].x, validMoves [i].y));
 			}
 		}
+
+		Assert.IsTrue (valuableMoves.Count != 0);
 
 		return valuableMoves [Random.Range (0, valuableMoves.Count)];
 	}
