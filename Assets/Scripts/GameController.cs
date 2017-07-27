@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour {
 
 	public Text countWhiteText;
 	public Text countBlackText;
+	public Text Debug1;
 	public enum Player {HUMAN, COMPUTER};
 	public GameObject bigButton;
 	public float computerTurnWait;
@@ -69,6 +70,11 @@ public class GameController : MonoBehaviour {
 	{
 		countWhiteText.text = CountChips (ChipColor.WHITE).ToString ();
 		countBlackText.text = CountChips (ChipColor.BLACK).ToString ();
+
+		if (currentPlayer == ChipColor.WHITE)
+			Debug1.text = "CurrentPlayer: WHITE"; 
+		else
+			Debug1.text = "CurrentPlayer: BLACK"; 
 	}
 
 
@@ -83,7 +89,9 @@ public class GameController : MonoBehaviour {
 					 (color == ChipColor.BLACK && gameBoard [i, j].tag == "ChipBlack")))
 					count++;
 
-		Assert.IsTrue (count > 1 && count < 65);
+		if (count < 1 && count > 65)
+			Debug.LogError ("CountChips::Error");
+		//Assert.IsTrue (count > 1 && count < 65);
 
 		return count;
 	}
@@ -117,7 +125,7 @@ public class GameController : MonoBehaviour {
 		float squareX = coordX / (Screen.width / 8);
 		float squareY = (coordY + Screen.width / 2 - Screen.height / 2) / (Screen.width / 8);
 
-		Assert.IsTrue (squareX >= 0 && squareX <= 7 && squareY >= 0 && squareY <= 7);
+		Assert.IsTrue (squareX >= 0 && squareX < 8 && squareY >= 0 && squareY < 8, "X:Y: " + squareX + ":" + squareY);
 
 		return new Vector2 ((int)squareX, (int)squareY);
 	}
@@ -132,7 +140,7 @@ public class GameController : MonoBehaviour {
 		int squareX = (int)((transformPos.x + 5) / 1.25);
 		int squareY = (int)((transformPos.z + 5) / 1.25);
 
-		Assert.IsTrue (squareX >= 0 && squareX <= 7 && squareY >= 0 && squareY <= 7);
+		Assert.IsTrue (squareX >= 0 && squareX < 8 && squareY >= 0 && squareY < 8);
 
 		return new Vector2 (squareX, squareY);
 	}
@@ -272,7 +280,8 @@ public class GameController : MonoBehaviour {
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
-				if (IsValidMove (x, y, ChipColor.BLACK) > 0)
+				//if (IsValidMove (x, y, ChipColor.BLACK) > 0)	// XXX
+				if (IsValidMove (x, y, color) > 0)
 					validMoves.Add (new Vector2 (x, y));
 			}
 		}
@@ -341,7 +350,7 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	//TODO: BUG: Checking the turn seems to stuck every now and then
+	//TODO: BUG: Checking the turn seems to stuck every now and then - forever loop
 	IEnumerator ChangePlayer ()
 	{
 		doneFlipping = false;
