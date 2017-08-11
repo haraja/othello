@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour {
 
 	public Text countWhiteText;
 	public Text countBlackText;
-	public Text Debug1;
+	public Text Debug1Text;
 	public enum Player {HUMAN, COMPUTER};
 	public GameObject bigButton;
 	public float computerTurnWait;
@@ -72,9 +72,9 @@ public class GameController : MonoBehaviour {
 		countBlackText.text = CountChips (ChipColor.BLACK).ToString ();
 
 		if (currentPlayer == ChipColor.WHITE)
-			Debug1.text = "CurrentPlayer: WHITE"; 
+			Debug1Text.text = "CurrentPlayer: WHITE"; 
 		else
-			Debug1.text = "CurrentPlayer: BLACK"; 
+			Debug1Text.text = "CurrentPlayer: BLACK"; 
 	}
 
 
@@ -350,7 +350,6 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	//TODO: BUG: Checking the turn seems to stuck every now and then - forever loop
 	IEnumerator ChangePlayer ()
 	{
 		doneFlipping = false;
@@ -358,7 +357,7 @@ public class GameController : MonoBehaviour {
 
 		//yield return new WaitForSeconds (computerTurnWait);
 
-		UpdateUI ();
+		// UpdateUI ();
 
 		ChipColor nextPlayer;
 		if (currentPlayer == ChipColor.WHITE) 
@@ -373,6 +372,7 @@ public class GameController : MonoBehaviour {
 			if (currentPlayer == ChipColor.WHITE) {
 				currentPlayer = nextPlayer;
 				bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
+				UpdateUI ();
 
 				if (opponent == Player.COMPUTER) {
 					yield return new WaitForSeconds (computerTurnWait);
@@ -381,6 +381,7 @@ public class GameController : MonoBehaviour {
 			} else {
 				currentPlayer = nextPlayer;
 				bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.white;
+				UpdateUI ();
 				yield return null;
 			}
 		} else {
