@@ -9,14 +9,9 @@ public class MenuStart : MonoBehaviour, IPointerDownHandler {
 	public GameController gameController;
 
 	// Use this for initialization
-	void Start () {
-/*		// get a reference for GameController
-		GameObject gameControllerObject = GameObject.FindWithTag ("GameController");
-		if (gameControllerObject != null)
-			gameController = gameControllerObject.GetComponent<GameController> ();
-		if (gameController == null)
-			Debug.Log ("AsteroidMover::Cannot Find GameController");
-*/	}
+	void Start () 
+	{
+	}
 	
 
 	public void OnPointerDown (PointerEventData data)
@@ -27,7 +22,6 @@ public class MenuStart : MonoBehaviour, IPointerDownHandler {
 			PlayerPrefs.SetInt("opponent", (int)Player.COMPUTER);
 		else
 			PlayerPrefs.SetInt("opponent", (int)Player.HUMAN);
-
 
 		SceneManager.LoadScene("Othello");
 	}

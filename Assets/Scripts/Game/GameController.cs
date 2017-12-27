@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 
 
 public enum ChipColor {WHITE, BLACK};
 public enum CompStrategy {RANDOM, GREEDY, CALCULATING1};
 public enum Player {HUMAN, COMPUTER};
-//public enum GameMode {SINGLEPLAYER, MULTIPLAYER};
 
 
 public class GameController : MonoBehaviour {
@@ -24,6 +24,8 @@ public class GameController : MonoBehaviour {
 	public GameObject chipWhite;
 	//public Player opponent = Player.COMPUTER;
 	public CompStrategy compStrategy = CompStrategy.RANDOM;
+	public Text gameOverText;
+	public Button NewGameButton;
 
 	Player opponent;
 	ChipColor currentPlayer = ChipColor.WHITE;	// white always starts
@@ -37,19 +39,6 @@ public class GameController : MonoBehaviour {
 	// used to check one direction, whether move is valid
 	List<GameObject> chipsOnDirection = new List<GameObject>();	
 
-/*
-	public void StartGame ()
-	{
-		Debug.Log ("GameController::StartGame");
-
-	}
-*/
-/*
-	public void SetOpponent(Player newOpponent)
-	{
-		opponent = newOpponent;
-	}
-*/
 
 	void OnEnable ()
 	{
@@ -63,6 +52,8 @@ public class GameController : MonoBehaviour {
 
 		InitBoard ();
 		UpdateUI ();
+
+		//NewGameButton.interactable = false;
 	}
 
 
@@ -83,11 +74,6 @@ public class GameController : MonoBehaviour {
 	{
 		countWhiteText.text = CountChips (ChipColor.WHITE).ToString ();
 		countBlackText.text = CountChips (ChipColor.BLACK).ToString ();
-
-		if (currentPlayer == ChipColor.WHITE)
-			Debug1Text.text = "CurrentPlayer: WHITE"; 
-		else
-			Debug1Text.text = "CurrentPlayer: BLACK"; 
 	}
 
 
@@ -112,8 +98,29 @@ public class GameController : MonoBehaviour {
 
 	void Update ()
 	{
-		if (doneFlipping)
-			StartCoroutine (ChangePlayer ());	
+		if (doneFlipping) {
+			if (CountChips (ChipColor.BLACK) + CountChips (ChipColor.WHITE) < 64	) {
+				StartCoroutine (ChangePlayer ());	
+			} else {
+				GameOver ();
+			}
+		}
+	}
+
+
+	void GameOver ()
+	{
+		if (CountChips (ChipColor.WHITE) > CountChips (ChipColor.BLACK))
+			gameOverText.text = "White Wins!!";
+		else if (CountChips (ChipColor.WHITE) < CountChips (ChipColor.BLACK))
+			gameOverText.text = "Black Wins!!";
+		else
+			gameOverText.text = "Draw!!";
+			
+		gameOverText.enabled = true;
+		NewGameButton.interactable = true;
+
+		//SceneManager.LoadScene("Menu");
 	}
 
 
