@@ -15,7 +15,7 @@ public class GameController : MonoBehaviour {
 
 	public Text countWhiteText;
 	public Text countBlackText;
-	public Text Debug1Text;
+	public Text debug1Text;
 	public GameObject bigButton;
 	public float computerTurnWait;
 	public float chipTurnWait; 
@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour {
 	//public Player opponent = Player.COMPUTER;
 	public CompStrategy compStrategy = CompStrategy.RANDOM;
 	public Text gameOverText;
-	public Button NewGameButton;
+	public Button newGameButton;
 
 	Player opponent;
 	ChipColor currentPlayer = ChipColor.WHITE;	// white always starts
@@ -43,6 +43,11 @@ public class GameController : MonoBehaviour {
 	void OnEnable ()
 	{
 		opponent = (Player)PlayerPrefs.GetInt ("opponent");
+		compStrategy = (CompStrategy)PlayerPrefs.GetInt ("strategy");
+
+		#if UNITY_EDITOR
+		debug1Text.text = "Difficulty: " + compStrategy;
+		#endif
 	}
 
 
@@ -53,7 +58,7 @@ public class GameController : MonoBehaviour {
 		InitBoard ();
 		UpdateUI ();
 
-		//NewGameButton.interactable = false;
+		newGameButton.interactable = true;
 	}
 
 
@@ -74,6 +79,9 @@ public class GameController : MonoBehaviour {
 	{
 		countWhiteText.text = CountChips (ChipColor.WHITE).ToString ();
 		countBlackText.text = CountChips (ChipColor.BLACK).ToString ();
+
+		//newGameButton.interactable = false;
+
 	}
 
 
@@ -99,7 +107,7 @@ public class GameController : MonoBehaviour {
 	void Update ()
 	{
 		if (doneFlipping) {
-			if (CountChips (ChipColor.BLACK) + CountChips (ChipColor.WHITE) < 64	) {
+			if (CountChips (ChipColor.BLACK) + CountChips (ChipColor.WHITE) < 64 ) {
 				StartCoroutine (ChangePlayer ());	
 			} else {
 				GameOver ();
@@ -117,10 +125,11 @@ public class GameController : MonoBehaviour {
 		else
 			gameOverText.text = "Draw!!";
 			
-		gameOverText.enabled = true;
-		NewGameButton.interactable = true;
+		UpdateUI ();
 
-		//SceneManager.LoadScene("Menu");
+		gameOverText.enabled = true;
+		//newGameButton.GetComponentInChildren<Text>().text = "New Game";
+		//newGameButton.interactable = true;
 	}
 
 

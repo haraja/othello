@@ -6,8 +6,10 @@ TagManager:
   tags:
   - ChipBlack
   - ChipWhite
-  - MenuStartSingle
   - MenuStartMulti
+  - MenuStartSingle_mode1
+  - MenuStartSingle_mode2
+  - MenuStartSingle_mode3
   layers:
   - Default
   - TransparentFX

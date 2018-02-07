@@ -18,11 +18,21 @@ public class MenuStart : MonoBehaviour, IPointerDownHandler {
 	{
 //		GameData.initByMenu = true;
 
-		if (data.selectedObject.tag == "MenuStartSingle")
-			PlayerPrefs.SetInt("opponent", (int)Player.COMPUTER);
-		else
-			PlayerPrefs.SetInt("opponent", (int)Player.HUMAN);
-
+		if (data.selectedObject.tag == "MenuStartSingle_mode1") {
+			PlayerPrefs.SetInt ("opponent", (int)Player.COMPUTER);
+			PlayerPrefs.SetInt ("strategy", (int)CompStrategy.RANDOM);
+		}
+		else if (data.selectedObject.tag == "MenuStartSingle_mode2") {
+			PlayerPrefs.SetInt ("opponent", (int)Player.COMPUTER);
+			PlayerPrefs.SetInt ("strategy", (int)CompStrategy.GREEDY);
+		} 
+		else if (data.selectedObject.tag == "MenuStartSingle_mode3") {
+			PlayerPrefs.SetInt ("opponent", (int)Player.COMPUTER);
+			PlayerPrefs.SetInt ("strategy", (int)CompStrategy.CALCULATING1);
+		} 
+		else {
+			PlayerPrefs.SetInt ("opponent", (int)Player.HUMAN);
+		}
 		SceneManager.LoadScene("Othello");
 	}
 }

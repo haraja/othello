@@ -211,16 +211,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   countWhiteText: {fileID: 921742025}
   countBlackText: {fileID: 2041437737}
-  Debug1Text: {fileID: 79802365}
+  debug1Text: {fileID: 79802365}
   bigButton: {fileID: 1550710007}
   computerTurnWait: 1
   chipTurnWait: 0.2
   gameboardImage: {fileID: 1800495872}
   chipBlack: {fileID: 1290418964432682, guid: 9351091a673064c139a81c8e86453391, type: 2}
   chipWhite: {fileID: 1442787813767632, guid: a9b4ee6d77a434768aa2f747ba64c0ae, type: 2}
-  compStrategy: 1
+  compStrategy: 2
   gameOverText: {fileID: 1136084814}
-  NewGameButton: {fileID: 1341664790}
+  newGameButton: {fileID: 1341664790}
 --- !u!4 &671359277
 Transform:
   m_ObjectHideFlags: 0

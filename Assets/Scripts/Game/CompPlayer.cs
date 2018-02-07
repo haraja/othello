@@ -48,6 +48,12 @@ public class CompPlayer : MonoBehaviour{
 	}
 
 
+	//
+	//	Game Modes
+	//
+
+
+	// Mode #1
 	// returns place for random move
 	Vector2? RandomMode (GameObject[,] gameboard)
 	{
@@ -69,11 +75,7 @@ public class CompPlayer : MonoBehaviour{
 	}
 
 
-	//
-	//	Game Modes
-	//
-
-
+	// Mode #2
 	// returns place for move, which brings most chips
 	Vector2? GreedyMode (GameObject[,] gameboard)
 	{
@@ -94,6 +96,7 @@ public class CompPlayer : MonoBehaviour{
 	}
 
 
+	// Mode #3
 	// returns place for move, which has most value. Blindly considers position of board, don't check other chips
 	Vector2? Calculating1Mode (GameObject[,] gameboard)
 	{
