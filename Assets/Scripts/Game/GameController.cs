@@ -48,6 +48,10 @@ public class GameController : MonoBehaviour {
 		#if UNITY_EDITOR
 		debug1Text.text = "Difficulty: " + compStrategy;
 		#endif
+
+		#if UNITY_ANDROID
+		debug1Text.text = "";
+		#endif
 	}
 
 
@@ -64,9 +68,11 @@ public class GameController : MonoBehaviour {
 
 	void InitBoard()
 	{
-		for (int i=0; i<8; i++)
-			for (int j = 0; j < 8; j++)
-				gameBoard[i, j] = null;
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				gameBoard [i, j] = null;
+			}
+		}
 			
 		gameBoard [3, 3] = Instantiate (chipWhite,  GetCoordFromSquare(3, 3), Quaternion.identity) as GameObject;
 		gameBoard [4, 4] = Instantiate (chipWhite,  GetCoordFromSquare(4, 4), Quaternion.identity) as GameObject;
@@ -89,15 +95,19 @@ public class GameController : MonoBehaviour {
 	{
 		int count = 0;
 
-		for (int i = 0; i < 8; i++)
-			for (int j = 0; j < 8; j++)
-				if (gameBoard [i, j] != null && 
-					((color == ChipColor.WHITE && gameBoard [i, j].tag == "ChipWhite") ||
-					 (color == ChipColor.BLACK && gameBoard [i, j].tag == "ChipBlack")))
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (gameBoard [i, j] != null &&
+				    ((color == ChipColor.WHITE && gameBoard [i, j].tag == "ChipWhite") ||
+				    (color == ChipColor.BLACK && gameBoard [i, j].tag == "ChipBlack"))) {
 					count++;
+				}
+			}
+		}
 
-		if (count < 1 && count > 65)
+		if (count < 1 && count > 65) {
 			Debug.LogError ("CountChips::Error");
+		}
 		//Assert.IsTrue (count > 1 && count < 65);
 
 		return count;
@@ -106,6 +116,11 @@ public class GameController : MonoBehaviour {
 
 	void Update ()
 	{
+
+		if (Input.GetKeyDown (KeyCode.Escape)) {
+			SceneManager.LoadScene ("Menu");
+		}
+
 		if (doneFlipping) {
 			if (CountChips (ChipColor.BLACK) + CountChips (ChipColor.WHITE) < 64 ) {
 				StartCoroutine (ChangePlayer ());	
@@ -118,13 +133,14 @@ public class GameController : MonoBehaviour {
 
 	void GameOver ()
 	{
-		if (CountChips (ChipColor.WHITE) > CountChips (ChipColor.BLACK))
+		if (CountChips (ChipColor.WHITE) > CountChips (ChipColor.BLACK)) {
 			gameOverText.text = "White Wins!!";
-		else if (CountChips (ChipColor.WHITE) < CountChips (ChipColor.BLACK))
+		} else if (CountChips (ChipColor.WHITE) < CountChips (ChipColor.BLACK)) {
 			gameOverText.text = "Black Wins!!";
-		else
+		} else {
 			gameOverText.text = "Draw!!";
-			
+		}
+
 		UpdateUI ();
 
 		gameOverText.enabled = true;
@@ -178,19 +194,21 @@ public class GameController : MonoBehaviour {
 	// This function expects, that there is chip on checked square!!!
 	ChipColor SquareColor(int squareX, int squareY)
 	{
-		Assert.IsNotNull (gameBoard[squareX, squareY]);
+		Assert.IsNotNull (gameBoard [squareX, squareY]);
 
-		if (gameBoard[squareX, squareY].tag == "ChipWhite")
+		if (gameBoard [squareX, squareY].tag == "ChipWhite") {
 			return ChipColor.WHITE;
-		else
+		} else {
 			return ChipColor.BLACK;
+		}
 	}
 
 
 	public void PointerDown(float coordX, float coordY)
 	{
-		if (currentPlayer == ChipColor.BLACK && opponent == Player.COMPUTER)
+		if (currentPlayer == ChipColor.BLACK && opponent == Player.COMPUTER) {
 			return;
+		}
 
 		Vector2 square = GetSquareFromCoord (coordX, coordY);
 		int squareX = (int)square.x;
@@ -202,9 +220,7 @@ public class GameController : MonoBehaviour {
 			} else {
 				gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
 			}
-			//UpdateUI ();
 			StartCoroutine (FlipChips ());
-
 		}
 	}
 
@@ -214,8 +230,9 @@ public class GameController : MonoBehaviour {
 	{
 		chipsToFlip.Clear ();
 
-		if (gameBoard [squareX, squareY] != null)
+		if (gameBoard [squareX, squareY] != null) {
 			return 0;
+		}
 
 		chipsOnDirection.Clear ();
 		if (CheckDirection (squareX, squareY, -1, -1, color)) {
@@ -273,9 +290,9 @@ public class GameController : MonoBehaviour {
 		}
 
 		if (count == 0) {
-			if (gameBoard [checkX, checkY] == null || SquareColor (checkX, checkY) == color)
+			if (gameBoard [checkX, checkY] == null || SquareColor (checkX, checkY) == color) {
 				return false;
-			else {
+			} else {
 				count++;
 				chipsOnDirection.Add (gameBoard [checkX, checkY]);
 				if (CheckDirection (checkX, checkY, deltaX, deltaY, color, count) == false) {
@@ -283,10 +300,10 @@ public class GameController : MonoBehaviour {
 					return false;
 				}
 			}
-		} 
-		else {
-			if (gameBoard [checkX, checkY] == null)
+		} else {
+			if (gameBoard [checkX, checkY] == null) {
 				return false;
+			}
 			if (SquareColor (checkX, checkY) != color) {
 				count++;
 				chipsOnDirection.Add (gameBoard [checkX, checkY]);
@@ -294,9 +311,9 @@ public class GameController : MonoBehaviour {
 					//chipsToFlip.Clear ();
 					return false;
 				}
-			} 
-			else
+			} else {
 				return true;
+			}
 		}
 			
 		return true;
@@ -310,8 +327,9 @@ public class GameController : MonoBehaviour {
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				//if (IsValidMove (x, y, ChipColor.BLACK) > 0)	// XXX
-				if (IsValidMove (x, y, color) > 0)
+				if (IsValidMove (x, y, color) > 0) {
 					validMoves.Add (new Vector2 (x, y));
+				}
 			}
 		}
 
@@ -322,8 +340,9 @@ public class GameController : MonoBehaviour {
 	void AddChipsToFlip ()
 	{
 		List<GameObject>.Enumerator e = chipsOnDirection.GetEnumerator (); 
-		while (e.MoveNext ())
+		while (e.MoveNext ()) {
 			chipsToFlip.Add (e.Current);
+		}
 	}
 
 
@@ -357,8 +376,9 @@ public class GameController : MonoBehaviour {
 
 				yield return new WaitForSeconds (chipTurnWait);
 
-				if (chipsToFlip [i] == null)
+				if (chipsToFlip [i] == null) {
 					Debug.LogError ("ERROR::FlipChips: list position is empty, i: " + i.ToString ());
+				}
 
 				Vector2 square = GetSquareFromTransform (chipsToFlip [i].transform.position);
 
@@ -368,10 +388,11 @@ public class GameController : MonoBehaviour {
 				//Destroy (e.Current);
 				Destroy (chipsToFlip [i]);
 
-				if (currentPlayer == ChipColor.BLACK)
+				if (currentPlayer == ChipColor.BLACK) {
 					gameBoard [squareX, squareY] = Instantiate (chipBlack, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
-				else
+				} else {
 					gameBoard [squareX, squareY] = Instantiate (chipWhite, GetCoordFromSquare (squareX, squareY), Quaternion.identity) as GameObject;
+				}
 			}
 		}
 
@@ -389,16 +410,17 @@ public class GameController : MonoBehaviour {
 		// UpdateUI ();
 
 		ChipColor nextPlayer;
-		if (currentPlayer == ChipColor.WHITE) 
+		if (currentPlayer == ChipColor.WHITE) {
 			nextPlayer = ChipColor.BLACK;
-		else
+		} else {
 			nextPlayer = ChipColor.WHITE;
-
+		}
 		//yield return new WaitForSeconds (computerTurnWait);
 
 		// if opposite player has no valid moved available, don't change turn 
 		if (FindValidMoves (nextPlayer).Count > 0) {
 			if (currentPlayer == ChipColor.WHITE) {
+		
 				currentPlayer = nextPlayer;
 				bigButton.gameObject.GetComponent<Renderer> ().material.color = Color.black;
 				UpdateUI ();

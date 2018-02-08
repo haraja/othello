@@ -35,4 +35,11 @@ public class MenuStart : MonoBehaviour, IPointerDownHandler {
 		}
 		SceneManager.LoadScene("Othello");
 	}
+
+	void Update()
+	{
+		if (Input.GetKeyDown (KeyCode.Escape)) {
+			Application.Quit ();
+		}
+	}
 }

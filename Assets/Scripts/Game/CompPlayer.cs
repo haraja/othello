@@ -15,10 +15,11 @@ public class CompPlayer : MonoBehaviour{
 	public void Start ()
 	{
 		GameObject gameControllerObject = GameObject.FindWithTag ("GameController");
-		if (gameControllerObject != null)
+		if (gameControllerObject != null) {
 			gameController = gameControllerObject.GetComponent<GameController> ();
-		else
+		} else {
 			Debug.LogError ("ERROR::Start: Cannot Find GameController");
+		}
 	}
 
 
@@ -57,21 +58,23 @@ public class CompPlayer : MonoBehaviour{
 	// returns place for random move
 	Vector2? RandomMode (GameObject[,] gameboard)
 	{
-		List<Vector2> validMoves = new List<Vector2>();
+		List<Vector2> validMoves = new List<Vector2> ();
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
-				if (gameController.IsValidMove (x, y, ChipColor.BLACK) > 0)
+				if (gameController.IsValidMove (x, y, ChipColor.BLACK) > 0) {
 					validMoves.Add (new Vector2 (x, y));
+				}
 			}
 		}
 		//Debug.Log ("validMoves count: " + validMoves.Count);
 
 		Vector2? returnPosition;
-		if (validMoves.Count == 0)
+		if (validMoves.Count == 0) {
 			return null;
-		else
+		} else {
 			return validMoves [Random.Range (0, validMoves.Count)];
+		}
 	}
 
 
@@ -79,20 +82,22 @@ public class CompPlayer : MonoBehaviour{
 	// returns place for move, which brings most chips
 	Vector2? GreedyMode (GameObject[,] gameboard)
 	{
-		List<Vector3> validMoves = new List<Vector3>();		// all valid moves
+		List<Vector3> validMoves = new List<Vector3> ();		// all valid moves
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				int flipCount = gameController.IsValidMove (x, y, ChipColor.BLACK);
-				if (flipCount > 0)
+				if (flipCount > 0) {
 					validMoves.Add (new Vector3 (x, y, flipCount)); // x,y are location; z is the count of flipped chips on this location
+				}
 			}
 		}
 
-		if (validMoves.Count == 0)
+		if (validMoves.Count == 0) {
 			return null;
-		else
+		} else {
 			return SelectMoveFromValid (validMoves);
+		}
 	}
 
 
@@ -100,57 +105,62 @@ public class CompPlayer : MonoBehaviour{
 	// returns place for move, which has most value. Blindly considers position of board, don't check other chips
 	Vector2? Calculating1Mode (GameObject[,] gameboard)
 	{
-		List<Vector3> validMoves = new List<Vector3>();			// all valid moves
-		List<Vector2> calculatedMoves = new List<Vector2>();	// moves with best calculated value
+		List<Vector3> validMoves = new List<Vector3> ();			// all valid moves
+		List<Vector2> calculatedMoves = new List<Vector2> ();	// moves with best calculated value
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				int flipCount = gameController.IsValidMove (x, y, ChipColor.BLACK);
-				if (flipCount > 0)
-				{
+				if (flipCount > 0) {
 					int value = 0;	// default value
 
 					// corners
-					if ((x == 0 && y == 0) || (x == 0 && y == 7) || (x == 7 && y == 0) || (x == 7 && y == 7))
+					if ((x == 0 && y == 0) || (x == 0 && y == 7) || (x == 7 && y == 0) || (x == 7 && y == 7)) {
 						value = 100;
+					}
 
 					// diagonal to corners
-					else if ((x == 1 && y == 1) || (x == 1 && y == 6) || (x == 6 && y == 1) || (x == 6 && y == 6))
+					else if ((x == 1 && y == 1) || (x == 1 && y == 6) || (x == 6 && y == 1) || (x == 6 && y == 6)) {
 						value = -100;
+					}
 
 					// next to corners, not diagonal
 					else if (
 						(x == 0 && (y == 1 && y == 6)) ||
 						(x == 7 && (y == 1 && y == 6)) ||
 						(y == 0 && (x == 1 && x == 6)) ||
-						(y == 7 && (x == 1 && x == 6)))
-						value = -50; 
+						(y == 7 && (x == 1 && x == 6))) {
+						value = -50;
+					}
 
 					// edges excluding corners, next to corners
 					else if (
 						(x == 0 && (y > 1 && y < 6)) ||
 						(x == 7 && (y > 1 && y < 6)) ||
 						(y == 0 && (x > 1 && x < 6)) ||
-						(y == 7 && (x > 1 && x < 6)))
-						value = 30; 
+						(y == 7 && (x > 1 && x < 6))) {
+						value = 30;
+					}
 							
 					// 1 away from edges - excluding diagonal to corners
 					else if (
 						(x == 1 && (y > 1 && y < 6)) ||
 						(x == 6 && (y > 1 && y < 6)) ||
 						(y == 1 && (x > 1 && x < 6)) ||
-						(y == 6 && (x > 1 && x < 6)))
+						(y == 6 && (x > 1 && x < 6))) {
 						value = -30;
+					}
 
 					validMoves.Add (new Vector3 (x, y, value)); // x,y are location; z is the count of flipped chips on this location
 				}
 			}
 		}
 			
-		if (validMoves.Count == 0)
+		if (validMoves.Count == 0) {
 			return null;
-		else
+		} else {
 			return SelectMoveFromValid (validMoves);
+		}
 	}
 
 
